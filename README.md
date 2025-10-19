@@ -122,9 +122,25 @@ python scripts/run_capture_pipeline.py rx \
 
 ---
 
-## 7. Post‑processing VITA‑49 traffic
+## 7. Post-processing VITA-49 traffic
 
-Captured PCAP files contain UHD VITA‑49 headers. Parse them with Scapy, Pyshark, or a custom Python script to extract sequence numbers and timestamps. Combined with the `sample_delay` reported by `analyze_delay.py`, you can map a specific sample index to a concrete packet and hardware timestamp.
+Captured PCAP files contain UHD VITA-49 headers. Parse them with Scapy, Pyshark, or a custom Python script to extract sequence numbers and timestamps. Combined with the `sample_delay` reported by `analyze_delay.py`, you can map a specific sample index to a concrete packet and hardware timestamp.
+
+For convenience, `scripts/align_delay.py` performs this alignment end-to-end:
+
+```bash
+python scripts/align_delay.py \
+  --tx-pcap outputs/tx_capture.pcap \
+  --rx-pcap outputs/rx_capture.pcap \
+  --tx-waveform outputs/prach_long.npy \
+  --rx-capture captures/prach_rx.c32 \
+  --samp-rate 1e6 \
+  --sample-bytes 8 \
+  --channels 1 \
+  --json
+```
+
+The script expects `scapy` to be available (`pip install scapy`). Output includes sample delay, hardware timestamps, and the inferred over-the-air latency.
 
 ---
 
@@ -148,4 +164,3 @@ See `scripts/utils/README.md` for details and extend the directory with addition
 5. Ensure no other process retains the USRPs (`terminate_uhd_claim.py`) and keep PHC/PTP synchronisation (`ptp4l`, `phc2sys`) active for reliable timestamping.
 
 Customize IP addresses, ports, gains, and clock sources to reflect your deployment. Each script supports `--help` for the complete argument list.
-
