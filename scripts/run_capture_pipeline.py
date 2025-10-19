@@ -11,17 +11,16 @@ Example (TX capture):
         --interface ens4f0np0 \
         --pcap outputs/tx_capture.pcap \
         --udp-port 49152 \
-        --waveform-file outputs/prach_long.npy \
-        --tx-args --gain 20 --freq 2.45e9
+        --timestamp-mode adapter_unsynced \
+        --tx-args --waveform-file outputs/prach_long.npy --gain 20 --freq 2.45e9
 
 Example (RX capture):
     python scripts/run_capture_pipeline.py rx \
         --interface ens4f1np1 \
         --pcap outputs/rx_capture.pcap \
         --udp-port 49153 \
-        --duration 10 \
-        --output captures/prach_rx.c32 \
-        --rx-args --gain 30
+        --timestamp-mode adapter_unsynced \
+        --rx-args --duration 10 --output captures/prach_rx.c32 --gain 30
 """
 
 from __future__ import annotations
