@@ -1,0 +1,5 @@
+__pycache__/
+*.py[cod]
+scripts/.matplotlib/
+outputs/
+captures/
