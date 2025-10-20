@@ -227,23 +227,30 @@ def _save_waveform_plot(
 
     indices = np.arange(plot_samples.size, dtype=np.int32)
     amplitudes = np.abs(plot_samples)
-    phases = np.angle(plot_samples)
-    phases = np.mod(phases + np.pi, 2 * np.pi) - np.pi
 
     fig, axes = plt.subplots(
-        2, 1, figsize=(10, 6), sharex=True, constrained_layout=True
+        2, 1, figsize=(10, 6), constrained_layout=True
     )
 
     axes[0].plot(indices, amplitudes)
     axes[0].set_ylabel("Amplitude")
+    axes[0].set_title("Amplitude Overview")
     axes[0].grid(True, which="both", linestyle=":")
 
-    axes[1].plot(indices, phases)
+    zoom_start = min(500, plot_samples.size - 1)
+    zoom_end = min(1000, plot_samples.size)
+    if zoom_start < zoom_end:
+        axes[1].plot(indices[zoom_start:zoom_end], amplitudes[zoom_start:zoom_end])
+        axes[1].set_xlim(indices[zoom_start], indices[zoom_end - 1])
+        axes[1].set_title("Amplitude Detail (Samples 500-1000)")
+    else:
+        axes[1].plot(indices, amplitudes)
+        axes[1].set_title("Amplitude Detail (Showing Available Samples)")
     axes[1].set_xlabel("Sample Index")
-    axes[1].set_ylabel("Phase [rad]")
+    axes[1].set_ylabel("Amplitude")
     axes[1].grid(True, which="both", linestyle=":")
 
-    fig.suptitle("RX Waveform Amplitude/Phase")
+    fig.suptitle("RX Waveform Amplitude")
     fig.savefig(output)
     plt.close(fig)
     return output

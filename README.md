@@ -94,17 +94,6 @@ python scripts/analyze_delay.py \
 
 Wraps `dumpcap` around the flowgraphs so that VITA‑49 UDP packets are captured while IQ samples stream. Grant `dumpcap` the required capability beforehand (e.g. `sudo setcap cap_net_raw,cap_net_admin=eip $(which dumpcap)`), or run with `--use-sudo` if your policy permits.
 
-### TX capture
-
-```bash
-python scripts/run_capture_pipeline.py tx \
-  --interface ens4f0np0 \
-  --pcap outputs/tx_capture.pcap \
-  --udp-port 49152 \
-  --timestamp-mode adapter_unsynced \
-  --tx-args --waveform-file outputs/prach_long.npy --gain 10 --freq 2.45e9
-```
-
 ### RX capture
 
 ```bash
@@ -116,7 +105,19 @@ python scripts/run_capture_pipeline.py rx \
   --rx-args --duration 5 --output captures/prach_rx.c32
 ```
 
+### TX capture
+
+```bash
+python scripts/run_capture_pipeline.py tx \
+  --interface ens4f0np0 \
+  --pcap outputs/tx_capture.pcap \
+  --udp-port 49153 \
+  --timestamp-mode adapter_unsynced \
+  --tx-args --waveform-file outputs/prach_long.npy --gain 10 --freq 2.45e9
+```
+
 - `--timestamp-mode` should match one of the values listed by `dumpcap --list-time-stamp-types` (for ConnectX adapters, `adapter_unsynced` reports PHC timestamps).
+- On this setup the TX VITA-49 stream egresses on UDP port `49153`, so the TX capture example uses that port.
 - Additional knobs: `--extra-dumpcap-flags`, `--ring-buffer-mb`, `--use-sudo`.
 - Flowgraphs are spawned as subprocesses; once they exit, `dumpcap` is interrupted and the PCAP is closed cleanly.
 
@@ -135,12 +136,12 @@ python scripts/align_delay.py \
   --tx-waveform outputs/prach_long.npy \
   --rx-capture captures/prach_rx.c32 \
   --samp-rate 1e6 \
-  --sample-bytes 8 \
+  --sample-bytes 4 \
   --channels 1 \
-  --json
+  --plot outputs/alignment_corr.png
 ```
 
-The script expects `scapy` to be available (`pip install scapy`). Output includes sample delay, hardware timestamps, and the inferred over-the-air latency.
+Add `--plot outputs/alignment_corr.png` to produce a correlation plot with the peak-lag marker and the TX VITA timestamp overlayed on the same time axis. The script expects `scapy` (and `matplotlib` when plotting) to be available. Output includes the sample delay, hardware timestamps, `peak_time_seconds`, and the inferred over-the-air latency.
 
 ---
 
